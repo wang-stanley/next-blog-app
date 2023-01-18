@@ -1,15 +1,13 @@
-import Head from 'next/head'
-import Image from 'next/image'
+import Image from 'next/image';
 
-import Loader from '../components/Loader';
+import toast from 'react-hot-toast';
 
 export default function Home() {
   return (
     <div>
-      <h1>
-        hi
-      </h1>
-      <Loader show/>
+      <button onClick={() => toast.success('Hello toast!')}>
+        Toast Me
+      </button>
     </div>
   )
 }
