@@ -2,16 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* .loader {
-    border: 10px solid var(--color-bg); 
-    border-top: 10px solid var(--color-blue); 
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 2s linear infinite;
+html,
+body {
+  padding: 0;
+  margin: 0;
+  margin-top: 50px;
 }
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-} */
