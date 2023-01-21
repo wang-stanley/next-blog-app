@@ -1,7 +1,9 @@
-import { getAuth, signInWithPopup, signOut } from "firebase/auth";
-import { googleAuthProvider } from "../lib/firebase";
-import { useContext } from 'react';
+import { getAuth, signInWithPopup, signOut } from 'firebase/auth';
+import { googleAuthProvider } from '../lib/firebase';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../lib/context';
+import { doc, getFirestore, getDoc, writeBatch } from 'firebase/firestore';
+import debounce from 'lodash.debounce'
 
 export default function EnterPage(props) {
   const { user, username } = useContext(UserContext);
@@ -65,5 +67,107 @@ function SignOutButton() {
 }
 
 function UsernameForm() {
-  return null;
+  const [formValue, setFormValue] = useState('');
+  const [isValid, setIsValid] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const { user, username } = useContext(UserContext);
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    //Create refs for both documents
+    const userDoc = doc(getFirestore(), 'users', user.uid);
+    const usernameDoc = doc(getFirestore(), 'usernames', formValue);
+
+    // Commit both docs together as a batch write
+    const batch = writeBatch(getFirestore());
+    batch.set(userDoc, { username: formValue, photoURL: user.photoURL, displayName: user.displayName });
+    batch.set(usernameDoc, { uid: user.uid });
+
+    await batch.commit().catch((e: any) => console.error(e));
+  }
+
+  const onChange = (e) => {
+    // Force form value to match the correct format
+    const val = e.target.value.toLowerCase();
+    const re = /^(?=[a-zA-Z0-9._]{3,15}$)(?!.*[_.]{2})[^_.].*[^_.]$/;
+
+    // Only set form value if length < 3 OR if it passes regex
+    if (val.length < 3) {
+      setFormValue(val);
+      setLoading(false);
+      setIsValid(false);
+    }
+
+    if (re.test(val)) {
+      setFormValue(val);
+      setLoading(true);
+      setIsValid(false);
+    }    
+  };
+
+  useEffect(() => {
+    checkUsername(formValue);
+  }, [formValue]);
+
+  
+  const checkUsername = useCallback(
+    debounce(async (username) => {
+      if (username.length >= 3) {
+        const ref = doc(getFirestore(), 'usernames', username);
+        const snap = await getDoc(ref);
+        console.log('Firestore read executed', snap.exists());
+        setIsValid(!snap.exists());
+        setLoading(false);
+      }
+    }, 500),
+    []
+  );
+
+  return (
+    !username && (
+      <section>
+        <h3>Choose Username</h3>
+        <form onSubmit={onSubmit}>
+          <input
+            name="username"
+            placeholder="username"
+            value={formValue}
+            onChange={onChange}
+          />
+
+          <UsernameMessage username={formValue} isValid={isValid} loading={loading} />
+
+          <button
+            type="submit"
+            className="border-0 rounded-md bg-green-500 font-semibold flex items-center justify-center cursor-pointer px-8 py-4"
+            disabled={!isValid}
+          >
+            Choose
+          </button>
+          <h3>Debug State</h3>
+          <div>
+            Username: {formValue}
+            <br />
+            Loading: {loading.toString()}
+            <br />
+            Username Valid: {isValid.toString()}
+          </div>
+        </form>
+      </section>
+    )
+  );
+}
+
+function UsernameMessage({ username, isValid, loading }) {
+  if (loading) {
+    return <p>Checking...</p>;
+  } else if (isValid) {
+    return <p className="text-green-500">{username} is available!</p>
+  } else if (username && !isValid) {
+    return <p className="text-red-500">That username is taken!</p>
+  } else {
+    return <p></p>;
+  }
 }
