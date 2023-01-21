@@ -1,11 +1,10 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import { useContext } from 'react';
+import { UserContext } from '../lib/context';
 
 // Navbar component
 export default function Navbar() {
-  // const { user, username } = { };
-  const user = true;
-  const username = true;
+  const { user, username } = useContext(UserContext);
 
   return (
     <nav className="h-16 w-full bg-white text-black fixed top-0 px-20 font-bold border-b border-solid border-gray-500 z-99">
