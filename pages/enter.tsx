@@ -48,13 +48,11 @@ function SignInButton() {
 }
 
 function onSignOut() {
-  console.log("Signing out!");
   const auth = getAuth();
   signOut(auth);
 }
 
 function SignOutButton() {
-  console.log('here');
   const auth = getAuth();
   return (
     <button
@@ -128,13 +126,14 @@ function UsernameForm() {
   return (
     !username && (
       <section>
-        <h3>Choose Username</h3>
+        <h3 className="font-semibold text-xl my-3">Choose Username</h3>
         <form onSubmit={onSubmit}>
           <input
             name="username"
             placeholder="username"
             value={formValue}
             onChange={onChange}
+            className="inline-block outline-none border-0 text-2xl w-full px-2.5 py-1.5"
           />
 
           <UsernameMessage username={formValue} isValid={isValid} loading={loading} />
@@ -146,7 +145,7 @@ function UsernameForm() {
           >
             Choose
           </button>
-          <h3>Debug State</h3>
+          <h3 className="font-semibold text-xl my-3">Debug State</h3>
           <div>
             Username: {formValue}
             <br />
@@ -162,12 +161,12 @@ function UsernameForm() {
 
 function UsernameMessage({ username, isValid, loading }) {
   if (loading) {
-    return <p>Checking...</p>;
+    return <p className="text-xl my-3">Checking...</p>;
   } else if (isValid) {
-    return <p className="text-green-500">{username} is available!</p>
+    return <p className="text-green-500 font-medium text-xl my-3">{username} is available!</p>
   } else if (username && !isValid) {
-    return <p className="text-red-500">That username is taken!</p>
+    return <p className="text-red-500 font-medium text-xl my-3">That username is taken!</p>
   } else {
-    return <p></p>;
+    return <p className="my-3"></p>;
   }
 }

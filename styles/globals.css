@@ -13,3 +13,13 @@ body {
 main {
     padding: 1rem 10vw;
 }
+
+button:hover {
+    filter: brightness(90%);
+  }
+  
+  button:disabled,
+  button[disabled]{
+    filter: brightness(80%);
+    cursor: not-allowed;
+}
